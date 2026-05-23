@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   colorsGradient, ageOptions, zones, painWhyOptions, sports, trainingLevels,
   subzoneConfig, painDurations, mobWhyOptions, mobTriedOptions, mobBlocksOptions,
@@ -92,11 +92,52 @@ function BarSelector({ value, onSelect, confirmLabel, onConfirm }: { value: numb
   );
 }
 
+type SubmissionPayload = {
+  prenom: string;
+  email: string;
+  zone: string;
+  programme: string;
+  tag: string;
+  date: string;
+  timestamp: number;
+};
+
+const PENDING_SUBMISSION_KEY = 'tt_pending_submission';
+
+async function submitPayload(payload: SubmissionPayload): Promise<boolean> {
+  try {
+    const res = await fetch('/api/submit-diagnostic', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export default function DiagnosticApp() {
   const [currentStep, setCurrentStep] = useState(1);
   const [answers, setAnswers] = useState<Answers>({ ...defaultAnswers });
   const [result, setResult] = useState<{ prog: string; msg: string; isConsultation: boolean } | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const pending = localStorage.getItem(PENDING_SUBMISSION_KEY);
+    if (!pending) return;
+    let payload: SubmissionPayload;
+    try {
+      payload = JSON.parse(pending);
+    } catch {
+      localStorage.removeItem(PENDING_SUBMISSION_KEY);
+      return;
+    }
+    submitPayload(payload).then((ok) => {
+      if (ok) localStorage.removeItem(PENDING_SUBMISSION_KEY);
+    });
+  }, []);
+
   const [emailError, setEmailError] = useState('');
   const [firstNameError, setFirstNameError] = useState('');
 
@@ -197,7 +238,7 @@ export default function DiagnosticApp() {
     const r = processAlgorithm(answers);
     setResult(r);
 
-    const payload = {
+    const payload: SubmissionPayload = {
       prenom: firstName,
       email,
       zone: answers.goal === 'pain' ? answers.pain_zone : answers.mob_zone,
@@ -207,16 +248,11 @@ export default function DiagnosticApp() {
       timestamp: Math.floor(Date.now() / 1000),
     };
 
-    try {
-      const res = await fetch('/api/submit-diagnostic', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) console.warn('API submit failed:', res.status);
-    } catch (err) {
-      // En preview Lovable, l'API n'existe pas — on log pour debug
-      console.log('[Fallback] Payload qui serait envoyé à N8N:', payload);
+    const ok = await submitPayload(payload);
+    if (ok) {
+      localStorage.removeItem(PENDING_SUBMISSION_KEY);
+    } else {
+      localStorage.setItem(PENDING_SUBMISSION_KEY, JSON.stringify(payload));
     }
 
     setSubmitting(false);
