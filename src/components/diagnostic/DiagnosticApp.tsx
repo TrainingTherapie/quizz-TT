@@ -153,6 +153,9 @@ export default function DiagnosticApp() {
   const totalSteps = getSteps().length - 1;
   const stepId = getCurrentStepId();
 
+  const scrollAllowedSteps: StepId[] = ['pain-why', 'pain-sport', 'mob-why', 'mob-blocks', 'final-lead', 'result'];
+  const allowScroll = scrollAllowedSteps.includes(stepId);
+
   const update = (key: keyof Answers, val: string | number | string[]) => {
     setAnswers(prev => ({ ...prev, [key]: val }));
   };
@@ -314,6 +317,12 @@ export default function DiagnosticApp() {
           <div className="animate-slide-up flex flex-col flex-1">
             <div className="mb-8 text-center">
               <h2 className="text-primary font-bold tracking-widest uppercase text-[10px] mb-2">Diagnostic Expert</h2>
+              <div className="text-muted-foreground text-sm leading-relaxed space-y-3 mb-6">
+                <p>Bienvenue sur notre outil de diagnostic !</p>
+                <p>On est trop content de pouvoir t'aider à atteindre tes objectifs 🚀</p>
+                <p>Réponds simplement à nos questions pour qu'on te propose le plan le plus adapté à ta problématique du moment.</p>
+                <p>Cela te prendra moins de 2 min :)</p>
+              </div>
               <h1 className="text-4xl font-futura font-bold text-foreground uppercase leading-none tracking-tight mb-4 text-balance">Pour commencer, dis-nous si tu es :</h1>
             </div>
             <div className="flex flex-col gap-3">
@@ -401,6 +410,7 @@ export default function DiagnosticApp() {
             <div className="mb-6 text-center">
               <h2 className="text-primary font-bold tracking-widest uppercase text-[10px] mb-2">Motivation</h2>
               <h1 className="text-3xl font-futura font-bold text-foreground uppercase leading-none tracking-tight text-balance">Pourquoi se libérer de tes douleurs ?</h1>
+              <p className="text-muted-foreground text-[10px] mt-2 font-medium italic uppercase tracking-wider">Plusieurs choix possibles</p>
             </div>
             <div className="flex flex-col gap-2 mb-6">
               {painWhyOptions.map(r => (
@@ -488,7 +498,7 @@ export default function DiagnosticApp() {
               <div className="w-full aspect-[16/10] bg-muted cut-card mb-6 overflow-hidden flex items-center justify-center relative">
                 <img src={teamReassuranceImg} className="w-full h-full object-cover" alt="L'équipe Training Thérapie" />
               </div>
-              <h2 className="text-primary font-bold tracking-widest uppercase text-[10px] mb-4 text-center">+ 5000 sportifs se sont libérés de leur douleur grâce à Training Thérapie.</h2>
+              <h2 className="text-primary font-bold tracking-widest uppercase text-base mb-4 text-center">+ 5000 sportifs se sont libérés de leur douleur grâce à Training Thérapie.</h2>
               <div className="text-center px-4 space-y-4">
                 {rc.title && <h3 className="text-xl font-futura font-bold text-foreground uppercase">{rc.title}</h3>}
                 {rc.paragraphs.map((p, i) => (
@@ -497,7 +507,7 @@ export default function DiagnosticApp() {
               </div>
             </div>
             <div className="mt-auto pt-4 border-t border-border">
-              <p className="text-center text-muted-foreground font-futura font-bold uppercase text-xs mb-4 tracking-widest">Encore 30'' pour être sûr de te proposer le protocole idéal. On continue ?</p>
+              <p className="text-center text-muted-foreground font-futura font-bold uppercase text-sm mb-4 tracking-widest">Encore 30'' pour être sûr de te proposer le protocole idéal. On continue ?</p>
               <button onClick={nextStep} className="w-full py-5 font-futura font-bold text-primary-foreground text-2xl uppercase bg-primary cut-btn shadow-xl shadow-primary/20">Oui, on continue !</button>
             </div>
           </div>
@@ -839,7 +849,7 @@ export default function DiagnosticApp() {
         </div>
 
         {/* Content */}
-        <main className="flex-1 px-6 pb-10 overflow-y-auto overflow-x-hidden relative z-10 flex flex-col" key={stepId}>
+        <main className={`flex-1 px-6 pb-10 ${allowScroll ? 'overflow-y-auto' : 'overflow-y-hidden'} overflow-x-hidden relative z-10 flex flex-col`} key={stepId}>
           {renderStep()}
         </main>
       </div>
