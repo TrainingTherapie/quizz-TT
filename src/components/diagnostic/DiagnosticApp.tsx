@@ -153,7 +153,7 @@ export default function DiagnosticApp() {
   const totalSteps = getSteps().length - 1;
   const stepId = getCurrentStepId();
 
-  const scrollAllowedSteps: StepId[] = ['pain-why', 'pain-sport', 'mob-why', 'mob-blocks', 'final-lead', 'result'];
+  const scrollAllowedSteps: StepId[] = ['pain-why', 'pain-sport', 'pain-reassurance', 'mob-why', 'mob-blocks', 'final-lead', 'result'];
   const allowScroll = scrollAllowedSteps.includes(stepId);
 
   const update = (key: keyof Answers, val: string | number | string[]) => {
