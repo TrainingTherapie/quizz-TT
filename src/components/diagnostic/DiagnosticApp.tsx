@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   colorsGradient, ageOptions, zones, painWhyOptions, sports, trainingLevels,
   subzoneConfig, painDurations, mobWhyOptions, mobTriedOptions, mobBlocksOptions,
@@ -153,8 +153,11 @@ export default function DiagnosticApp() {
   const totalSteps = getSteps().length - 1;
   const stepId = getCurrentStepId();
 
-  const scrollAllowedSteps: StepId[] = ['pain-why', 'pain-sport', 'pain-reassurance', 'mob-why', 'mob-blocks', 'final-lead', 'result'];
-  const allowScroll = scrollAllowedSteps.includes(stepId);
+  const mainRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0, left: 0 });
+    window.scrollTo({ top: 0, left: 0 });
+  }, [stepId]);
 
   const update = (key: keyof Answers, val: string | number | string[]) => {
     setAnswers(prev => ({ ...prev, [key]: val }));
@@ -820,8 +823,8 @@ export default function DiagnosticApp() {
   };
 
   return (
-    <div className="bg-muted min-h-screen flex justify-center selection:bg-primary/10 font-sans">
-      <div className="w-full max-w-md bg-background flex flex-col relative shadow-2xl overflow-hidden sm:border-x sm:border-border h-screen sm:h-auto sm:min-h-screen">
+    <div className="bg-muted min-h-[100dvh] flex justify-center selection:bg-primary/10 font-sans">
+      <div className="w-full max-w-md bg-background flex flex-col relative shadow-2xl overflow-hidden sm:border-x sm:border-border h-[100dvh] sm:h-auto sm:min-h-screen">
         <div className="absolute top-[-10%] right-[-30%] w-[150%] h-[50%] bg-muted opacity-30 origin-bottom-right transform -skew-y-12 pointer-events-none" />
 
         {/* Header */}
@@ -849,7 +852,7 @@ export default function DiagnosticApp() {
         </div>
 
         {/* Content */}
-        <main className={`flex-1 px-6 pb-10 ${allowScroll ? 'overflow-y-auto' : 'overflow-y-hidden'} overflow-x-hidden relative z-10 flex flex-col`} key={stepId}>
+        <main ref={mainRef} className="flex-1 px-6 pb-[max(2.5rem,env(safe-area-inset-bottom))] overflow-y-auto overflow-x-hidden relative z-10 flex flex-col" key={stepId}>
           {renderStep()}
         </main>
       </div>
