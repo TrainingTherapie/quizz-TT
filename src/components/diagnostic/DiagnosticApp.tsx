@@ -100,6 +100,28 @@ type SubmissionPayload = {
   tag: string;
   date: string;
   timestamp: number;
+  // Profil commun
+  genre?: string;
+  age?: string;
+  objectif?: string;
+  motivation?: number;
+  // Branche douleur
+  douleur_raisons?: string[];
+  douleur_zone?: string;
+  douleur_sous_zone?: string;
+  douleur_duree?: string;
+  douleur_sport?: string;
+  douleur_entrainement?: string;
+  douleur_kine?: string;
+  douleur_kine_type?: string;
+  douleur_salle?: string;
+  douleur_intensite?: number;
+  // Branche mobilité
+  mob_raisons?: string[];
+  mob_zone?: string;
+  mob_duree?: string;
+  mob_experience?: string;
+  mob_blocages?: string[];
 };
 
 const PENDING_SUBMISSION_KEY = 'tt_pending_submission';
@@ -244,14 +266,42 @@ export default function DiagnosticApp() {
     const r = processAlgorithm(answers);
     setResult(r);
 
+    const isPain = answers.goal === 'pain';
+
     const payload: SubmissionPayload = {
       prenom: firstName,
       email,
-      zone: answers.goal === 'pain' ? answers.pain_zone : answers.mob_zone,
+      zone: isPain ? answers.pain_zone : answers.mob_zone,
       programme: r.prog,
       tag: getProgramTag(r.prog, answers),
       date: new Date().toLocaleDateString('fr-FR'),
       timestamp: Math.floor(Date.now() / 1000),
+      // Profil commun
+      genre: answers.gender === 'homme' ? 'Homme' : answers.gender === 'femme' ? 'Femme' : undefined,
+      age: ageOptions.find(o => o.id === answers.age)?.label,
+      objectif: isPain ? 'Douleur' : 'Mobilité',
+      motivation: answers.motivation,
+      // Branche douleur
+      ...(isPain ? {
+        douleur_raisons: answers.pain_why,
+        douleur_zone: zones.find(z => z.id === answers.pain_zone)?.label,
+        douleur_sous_zone: answers.pain_zone && answers.pain_subzone
+          ? subzoneConfig[answers.pain_zone]?.find(s => s.id === answers.pain_subzone)?.label
+          : undefined,
+        douleur_duree: painDurations.find(d => d.id === answers.pain_duration)?.label,
+        douleur_sport: sports.find(s => s.id === answers.pain_sport)?.label,
+        douleur_entrainement: trainingLevels.find(t => t.id === answers.pain_training)?.label,
+        douleur_kine: answers.kine === 'yes' ? 'Oui' : answers.kine === 'no' ? 'Non' : undefined,
+        douleur_kine_type: kineDetails.find(k => k.id === answers.kine_detail)?.label,
+        douleur_salle: answers.pain_gym === 'gym' ? 'Oui' : answers.pain_gym === 'home' ? 'Non' : undefined,
+        douleur_intensite: answers.pain_intensity,
+      } : {
+        mob_raisons: answers.mob_why,
+        mob_zone: mobZones.find(z => z.id === answers.mob_zone)?.label,
+        mob_duree: mobDurations.find(d => d.id === answers.mob_duration)?.label,
+        mob_experience: mobTriedOptions.find(t => t.id === answers.mob_tried)?.label,
+        mob_blocages: answers.mob_blocks,
+      }),
     };
 
     const ok = await submitPayload(payload);

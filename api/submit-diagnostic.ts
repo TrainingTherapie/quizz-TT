@@ -9,6 +9,28 @@ const PayloadSchema = z.object({
   tag: z.string().max(100),
   date: z.string().max(50),
   timestamp: z.number().int().positive(),
+  // Profil commun
+  genre: z.string().max(10).optional(),
+  age: z.string().max(50).optional(),
+  objectif: z.string().max(20).optional(),
+  motivation: z.number().int().min(0).max(10).optional(),
+  // Branche douleur
+  douleur_raisons: z.array(z.string().max(200)).optional(),
+  douleur_zone: z.string().max(100).optional(),
+  douleur_sous_zone: z.string().max(100).optional(),
+  douleur_duree: z.string().max(100).optional(),
+  douleur_sport: z.string().max(100).optional(),
+  douleur_entrainement: z.string().max(200).optional(),
+  douleur_kine: z.string().max(10).optional(),
+  douleur_kine_type: z.string().max(100).optional(),
+  douleur_salle: z.string().max(10).optional(),
+  douleur_intensite: z.number().int().min(0).max(10).optional(),
+  // Branche mobilité
+  mob_raisons: z.array(z.string().max(200)).optional(),
+  mob_zone: z.string().max(100).optional(),
+  mob_duree: z.string().max(100).optional(),
+  mob_experience: z.string().max(200).optional(),
+  mob_blocages: z.array(z.string().max(200)).optional(),
 });
 
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS ?? '')
