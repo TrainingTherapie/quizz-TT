@@ -14,13 +14,23 @@ export function processAlgorithm(answers: Answers): { prog: string; msg: string;
   let prog = "PROTOCOLE PERSONNALISÉ";
   let msg = "Nous avons identifié votre protocole idéal :";
 
-  const needsConsultation = (pain >= 8) || (dur === 'years') || (rehab === 'yes' && rehab_detail === 'active') || (train === 'stop_never') ||
+  const painConsultation =
+    (dur === 'u1m' && pain >= 6) ||
+    ((dur === '1-6m' || dur === 'o6m' || dur === 'years') && pain >= 8);
+
+  const profileConsultation =
+    (rehab === 'yes' && rehab_detail === 'active') ||
+    (train === 'stop_never');
+
+  const zoneConsultation =
     (z === 'epaule' && !gym) ||
     (z === 'hanche' && (!gym || !recoveryEligible)) ||
     (z === 'tibia' && sub !== 'leg_shin' && sub !== 'leg_achilles') ||
     (z === 'genou' && sub === 'knee_unknown') ||
     (z === 'cheville' && (sub === 'foot_sole' || sub === 'foot_unknown')) ||
     (z === 'coude' && sub === 'elbow_inner');
+
+  const needsConsultation = painConsultation || profileConsultation || zoneConsultation;
 
   if (needsConsultation) {
     prog = "CONSULTATION INDIVIDUELLE";
